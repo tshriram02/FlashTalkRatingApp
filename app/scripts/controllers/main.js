@@ -8,7 +8,7 @@
  * Controller of the ratingApp
  */
 angular.module('ratingApp')
-  .controller('MainCtrl', function ($scope) {
+  .controller('MainCtrl', function ($scope,commentsService) {
         $scope.rate = 0;
         $scope.max = 5;
         $scope.isReadonly = false;
@@ -25,4 +25,9 @@ angular.module('ratingApp')
             {stateOn: 'glyphicon-heart'},
             {stateOff: 'glyphicon-off'}
         ];
+        $scope.submit = function(){
+            commentsService.postComments($scope.comments,$scope.rate).then(function(response) {
+            });
+        };
+
   });
