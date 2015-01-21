@@ -26,9 +26,16 @@ angular.module('ratingApp')
             {stateOff: 'glyphicon-off'}
         ];
         $scope.submit = function(){
-            commentsService.postComments($scope.comments,$scope.rate).then(function() {
-                $location.path('submissionPage');
-            });
+            if($scope.rate>0) {
+                commentsService.postComments($scope.comments, $scope.rate).then(function () {
+                    $location.path('submissionPage');
+                    $scope.errorMessage = '';
+
+                });
+            }
+            else{
+                $scope.errorMessage = 'Please give a rating!';
+            }
         };
 
   });
