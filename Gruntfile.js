@@ -11,6 +11,7 @@ module.exports = function (grunt) {
 
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
+  grunt.loadNpmTasks('grunt-connect-proxy');
 
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
@@ -71,21 +72,41 @@ module.exports = function (grunt) {
         hostname: '*',
         livereload: 35729
       },
-      livereload: {
-        options: {
-          open: true,
-          middleware: function (connect) {
-            return [
-              connect.static('.tmp'),
-              connect().use(
-                '/bower_components',
-                connect.static('./bower_components')
-              ),
-              connect.static(appConfig.app)
-            ];
-          }
-        }
-      },
+    proxies: [{
+       context: '/api', // the context of the data service
+       host: 'localhost', // wherever the data service is running
+       port: 3000,
+       https: false,
+       xforward: false
+    }],
+        livereload: {
+            options: {
+                open: true,
+                base: [
+                    '.tmp',
+                    '<%= yeoman.app %>'
+
+                ],
+                middleware: function(connect) {
+
+                    // Setup the proxy
+                    var middlewares = [
+                        require('grunt-connect-proxy/lib/utils').proxyRequest,
+                        connect.static('.tmp'),
+                        connect().use(
+                            '/bower_components',
+                            connect.static('./bower_components')
+                        ),
+                        connect.static(appConfig.app)
+                    ];
+
+
+                    return middlewares;
+
+
+                }
+            }
+        },
       test: {
         options: {
           port: 9001,
@@ -399,6 +420,7 @@ module.exports = function (grunt) {
 
     grunt.task.run([
       'clean:server',
+      'configureProxies:server',
       'wiredep',
       'concurrent:server',
       'autoprefixer',
